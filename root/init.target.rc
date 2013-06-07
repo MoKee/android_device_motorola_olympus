@@ -1,0 +1,336 @@
+import init.target.usb.rc
+
+on early-init
+    mount debugfs debugfs /sys/kernel/debug
+    write /sys/class/firmware/timeout 5
+
+    export EXTERNAL_STORAGE /storage/sdcard0
+    export SECONDARY_STORAGE /storage/sdcard1
+    # create mountpoints for storage
+    mkdir /storage 0050 system sdcard_r
+    mkdir /storage/sdcard0 0000 system system
+    mkdir /storage/sdcard1 0000 system system
+    symlink /storage/sdcard0 /sdcard
+    symlink /storage/sdcard0 /mnt/sdcard
+    symlink /storage/sdcard1 /external_sd
+    symlink /storage/sdcard1 /extSdCard
+    mkdir /storage/usbdisk0 0000 system system
+    mkdir /storage/usbdisk1 0000 system system
+    mkdir /storage/usbdisk2 0000 system system
+    mkdir /storage/usbdisk3 0000 system system
+    mkdir /storage/usbdisk4 0000 system system
+    mkdir /storage/usbdisk5 0000 system system
+    mkdir /storage/usbdisk6 0000 system system
+    mkdir /storage/usbdisk7 0000 system system
+
+
+on init
+    mkdir /pds 0755 root root
+
+on early-boot
+    setprop ro.FOREGROUND_APP_MEM 3072
+    setprop ro.VISIBLE_APP_MEM 4608
+    setprop ro.PERCEPTIBLE_APP_MEM 7200
+    setprop ro.HEAVY_WEIGHT_APP_MEM 7200
+    setprop ro.SECONDARY_SERVER_MEM 11776
+    setprop ro.BACKUP_APP_MEM 11776
+    setprop ro.HOME_APP_MEM 11776
+    setprop ro.HIDDEN_APP_MEM 17408
+    setprop ro.EMPTY_APP_MEM 21000
+
+on fs
+    mount_all /fstab.olympus
+    write /proc/apanic /dev/block/mmcblk0p9
+    exec /system/bin/logwrapper /system/bin/pds_perm_fix.sh
+    start adbd
+
+on post-fs
+    chown mot_accy mot_accy /pds/public/battd/batt_offset_data
+    chmod 0660 /pds/public/battd/batt_offset_data
+    chown mot_accy mot_accy /pds/public/battd/batt_phasing_data
+    chmod 0660 /pds/public/battd/batt_phasing_data
+    chown mot_accy mot_accy /pds/public/battd/batt_tuning_data
+    chmod 0660 /pds/public/battd/batt_tuning_data
+
+    chown bluetooth bluetooth /pds/bt/bt_bdaddr
+    chmod 0664 /pds/bt/bt_bdaddr
+
+on post-fs-data
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/dhcp 0770 dhcp dhcp
+    chown dhcp dhcp /data/misc/dhcp
+    #directory to hwui blacklist
+    mkdir /data/local/hwui.deny 0775 system system
+
+    chown system system /data/am2data.db
+    chown system system /data/am2data.db.meta
+    # Set the default value for bluedroid_ref
+    write /data/tmp/bluedroid_ref 0
+    chown system system /data/tmp/bluedroid_ref
+
+    setprop vold.post_fs_data_done 1
+
+on boot
+    chown system system /dev/aes1750
+    chmod 0600 /dev/aes1750
+
+    # Adjust Android LMK
+    write /sys/module/lowmemorykiller/parameters/minfree 3072,4608,7200,11776,17408,21000
+
+    # OSH properties
+    setprop sys.SystemMode RM_SM_MOBILE
+    setprop sys.FbOwner 3
+    setprop sys.DispOwnerLcd 3
+    setprop sys.DispOwnerHdmi 1
+    setprop sys.AiwFocus 3
+    setprop sys.AMActiveTask 2
+
+    # External Display
+    chown system system /sys/devices/tegradc.1/hpd
+    chown system system /sys/devices/tegradc.1/connected
+    chown system system /sys/class/switch/hdmi/state
+
+    # Power up/down interface
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chmod 0660 /sys/class/rfkill/rfkill0/type
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+
+    # Bluetooth MAC address programming
+    chown bluetooth bluetooth ro.bt.bdaddr_path
+    chown bluetooth bluetooth /system/etc/bluetooth
+    chown bluetooth bluetooth /dev/ttyHS2
+    setprop ro.bt.bdaddr_path "/pds/bt/bt_bdaddr"
+    chmod 0660 /dev/ttyHS2
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chmod 0660 /sys/class/rfkill/rfkill0/type
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    write /sys/class/rfkill/rfkill0/state 1
+
+    # Define the BLAN interface
+    setprop ro.blan.interface usb0
+    chmod 0666 /dev/ttyUSB0
+
+    # backlight
+    chown system system /sys/class/leds/lcd-backlight/brightness
+    chmod 0664 /sys/class/leds/lcd-backlight/brightness
+    chown system system /sys/class/leds/button-backlight/brightness
+    chmod 0664 /sys/class/leds/button-backlight/brightness
+
+    # flash LED
+    chown media camera /sys/class/leds/flash/brightness
+    chmod 0660 /sys/class/leds/flash/brightness
+    chown media camera /sys/class/leds/flash/strobe
+    chmod 0660 /sys/class/leds/flash/strobe
+    chown media camera /sys/class/leds/torch/brightness
+    chmod 0660 /sys/class/leds/torch/brightness
+
+    # notification leds
+    chown system system /sys/class/leds/red/brightness
+    chown system system /sys/class/leds/green/brightness
+    chown system system /sys/class/leds/blue/brightness
+    chown system system /sys/class/leds/red/blink
+    chmod 0664 /sys/class/leds/red/brightness
+    chmod 0664 /sys/class/leds/green/brightness
+    chmod 0664 /sys/class/leds/blue/brightness
+    chmod 0664 /sys/class/leds/red/blink
+
+    # Sensor
+    chmod 666 /dev/nvhost-ctrl
+    chmod 666 /dev/nvhost-display
+    chmod 666 /dev/nvhost-dsi
+    chmod 666 /dev/nvhost-gr2d
+    chmod 666 /dev/nvhost-gr3d
+    chmod 666 /dev/nvhost-isp
+    chmod 666 /dev/nvhost-mpe
+    chmod 666 /dev/nvhost-vi
+
+    # Accelerometer
+    chmod 664 /sys/class/input/input2/device/rate
+    chmod 664 /sys/class/input/input2/device/autosleep
+    chown root system /sys/class/input/input2/device/rate
+    chown root system /sys/class/input/input2/device/autosleep
+
+    # Power management settings
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 216000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1200000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq 216000
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1200000
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
+    write /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load 80
+
+    #parse kernel boot mode info
+    exec /system/bin/mot_boot_mode
+
+on start-charging
+    chown mot_accy mot_accy /sys/power/state
+    chmod 0660 /sys/power/state
+    chown mot_accy mot_accy /sys/class/leds/button-backlight/brightness
+    chmod 0660 /sys/class/leds/button-backlight/brightness
+    chown mot_accy mot_accy /sys/class/leds/lcd-backlight/brightness
+    chmod 0660 /sys/class/leds/lcd-backlight/brightness
+    chown mot_accy mot_accy /sys/class/leds/red/brightness
+    chmod 0660 /sys/class/leds/red/brightness
+    chown mot_accy mot_accy /sys/class/leds/green/brightness
+    chmod 0660 /sys/class/leds/green/brightness
+    chown mot_accy mot_accy /sys/class/leds/red/blink
+    chmod 0660 /sys/class/leds/red/blink
+    chown mot_accy mot_accy /sys/class/backlight/lm3532_bl/brightness
+    chmod 0660 /sys/class/backlight/lm3532_bl/brightness
+    chown mot_accy mot_accy  /sys/class/power_supply/ac/online
+    chmod 0660 /sys/class/power_supply/ac/online
+    chown mot_accy mot_accy  /sys/class/power_supply/usb/online
+    chmod 0660 /sys/class/power_supply/usb/online
+    chown mot_accy mot_accy  /sys/class/power_supply/battery/present
+    chmod 0660 /sys/class/power_supply/battery/present
+    chown mot_accy mot_accy  /sys/class/power_supply/battery/capacity
+    chmod 0660 /sys/class/power_supply/battery/capacity
+    chown mot_accy mot_accy  /sys/class/power_supply/battery/voltage_now
+    chmod 0660 /sys/class/power_supply/battery/voltage_now
+    chown mot_accy mot_accy  /sys/class/power_supply/battery/status
+    chown 0660  /sys/class/power_supply/battery/status
+    chown mot_accy mot_accy /sys/class/power_supply/battery/status
+    chmod 0660 /sys/class/power_supply/battery/status
+    start whisperd
+    start charge_only_mode
+    start battd
+
+on property:sys.chargeonly.mode=1
+    class_stop main
+    trigger start-charging
+
+on device-added-/dev/ttyUSB0
+    write /sys/devices/platform/tegra-ehci.2/usb2/2-1/power/autosuspend 2
+    write /sys/devices/platform/tegra-ehci.2/usb2/2-1/power/level auto
+
+# Modem panic daemon
+service mdm_panicd /system/bin/mdm_panicd
+    class main
+    oneshot
+
+on device-added-/dev/touchpad
+    # Touchpad
+    chmod 660 /sys/class/misc/touchpad
+    chown compass compass /sys/bus/i2c/drivers/qtouch-obp-ts/0-004a/irqStatus
+    chown mot_tcmd mot_tcmd /dev/touchpad
+    start touch
+
+service touch /system/bin/logwrapper /system/bin/touchpad -a
+    class main
+    user root
+    group root
+    oneshot
+
+# Ecompass daemon
+service akmd8975 /system/bin/akmd8975
+    class main
+    user compass
+    group compass misc input
+
+service wpa_supplicant /system/bin/wpa_supplicant \
+    -Dwext -ieth0 -c/data/misc/wifi/wpa_supplicant.conf
+    #   we will start as root and wpa_supplicant will switch to user wifi
+    #   after setting up the capabilities required for WEXT
+    #   user wifi
+    #   group wifi inet keystore
+    socket wpa_eth0 dgram 660 wifi wifi
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+service battd /system/bin/battd
+    class core
+    socket battdsock stream 0660 mot_accy mot_accy
+    user root
+    group mot_accy mot_pwric
+    oneshot
+
+
+service charge_only_mode /system/bin/charge_only_mode
+    class main
+    user root
+    disabled
+
+#Enable DUN and PAN support
+service dund_dialup /system/bin/dund --listen --channel=6 --nodetach --dialup
+    class late_start
+    group net_bt net_bt_admin
+    disabled
+    oneshot
+
+service nap /system/bin/sdptool add NAP
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service del_nap /system/bin/sdptool remove NAP
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service panu /system/bin/sdptool add PANU
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service del_panu /system/bin/sdptool remove PANU
+    class late_start
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service btdhcpd /system/bin/dnsmasq -C /system/etc/btpan.conf
+    class late_start
+    user root
+    disabled
+    oneshot
+
+service whisperd /system/bin/whisperd /dev/ttyHS0
+    class core
+    user root
+    oneshot
+
+
+# aplogd start/stop is controlled by the persist.log.aplogd.enable system
+# property.  Don't set the property diruspendctly, because it's controlled by the
+# com.motorola.android.settings.aplogd Java Service and ContentProvider.  To
+# change the default behavior of aplogd on bootup, you should update the
+# defaults for the com.motorola.android.settings.aplogd Java Service and
+# ContentProvider which control it.
+service aplogd /system/bin/aplogd
+    #user log
+    #group log system sdcard_rw mount
+    # The user and group definitions above are intentionally disabled and left
+    # only as documentation.  It actually starts as root and immediately drops
+    # to log plus those groups after preserving CAP_SYS_ADMIN, which is required
+    # for kernel logging.
+    disabled
+
+on property:persist.log.aplogd.enable=1
+    start aplogd
+
+on property:persist.log.aplogd.enable=0
+    stop aplogd
+
+# Fingerprint sensor daemon
+service am2server /system/bin/am2server
+    disabled
+    class main
+    user root
+    group root
+
