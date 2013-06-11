@@ -1,3 +1,5 @@
+ifeq ($(TARGET_DEVICE),olympus)
+
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -16,3 +18,5 @@ LOCAL_STATIC_LIBRARIES := \
 LOCAL_FORCE_STATIC_EXECUTABLE := false
 
 include $(BUILD_EXECUTABLE)
+
+endif
