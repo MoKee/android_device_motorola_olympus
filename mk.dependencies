@@ -1,0 +1,13 @@
+[
+  {
+    "repository": "MoKee/android_kernel_motorola_olympus",
+    "target_path": "kernel/motorola/olympus",
+    "branch": "jb-mr1_mkt"
+  },
+  {
+    "repository": "MoKee/android_vendor_motorola_olympus",
+    "target_path": "vendor/motorola/olympus",
+    "branch": "jb-mr1_mkt"
+  }
+]
+
