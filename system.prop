@@ -41,10 +41,6 @@ ro.opengles.version = 131072
 # Forbid format of these partitions in mount menu :
 ro.cwm.forbid_format=/misc,/radio,/pds,/bootloader,/recovery,/efs
 
-# Set locale to English US by default
-ro.product.locale.language=en
-ro.product.locale.region=US
-
 # Enable detailed GC data and SMP dexopt
 dalvik.vm.dexopt-flags=m=y,u=n
 
