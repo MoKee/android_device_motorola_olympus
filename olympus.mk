@@ -19,6 +19,9 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/config/sysctl.conf:system/etc/sysctl.conf \
     $(LOCAL_PATH)/config/audio_policy.conf:system/etc/audio_policy.conf
 
+# Set en_US as default locale
+PRODUCT_LOCALES := zh_CN
+
 # olympus uses high-density artwork where available
 PRODUCT_LOCALES += hdpi
 
