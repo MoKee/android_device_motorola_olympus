@@ -84,6 +84,35 @@ BOARD_USES_AUDIO_LEGACY := true
 COMMON_GLOBAL_CFLAGS += -DICS_AUDIO_BLOB -DMOTOROLA_UIDS -DICS_CAMERA_BLOB -DDISABLE_HW_ID_MATCH_CHECK
 BOARD_CAMERA_HAVE_ISO := true
 BOARD_MOBILEDATA_INTERFACE_NAME := "ppp0"
+TARGET_SCREEN_WIDTH:=540
+TARGET_SCREEN_HEIGHT:=960
+
+
+BOARD_SEPOLICY_DIRS += \
+        device/motorola/olympus/sepolicy
+
+BOARD_SEPOLICY_UNION += \
+    file_contexts \
+    app.te \
+    device.te \
+    drmserver.te \
+    file.te \
+    genfs_contexts \
+    init.te \
+    media_app.te \
+    mediaserver.te \
+    platform_app.te \
+    radio.te \
+    release_app.te \
+    rild.te \
+    sensors_config.te \
+    shared_app.te \
+    surfaceflinger.te \
+    system_app.te \
+    system.te \
+    wpa_socket.te \
+    wpa.te \
+    zygote.te
 
 ifdef MK_RELEASE
 WITH_DEXPREOPT := true
