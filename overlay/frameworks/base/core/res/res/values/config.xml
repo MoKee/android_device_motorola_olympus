@@ -425,4 +425,7 @@
 
     <!-- File to use when sharing mass storage over USB -->
     <string name="config_legacyUmsLunFile">/sys/class/android_usb/f_mass_storage/lun/file</string>
+
+    <!-- Device supports LED flashlight -->
+    <bool name="config_enableTorch">true</bool>
 </resources>
