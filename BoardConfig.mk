@@ -118,6 +118,3 @@ BOARD_SEPOLICY_UNION += \
     wpa.te \
     zygote.te
 
-ifdef MK_RELEASE
-WITH_DEXPREOPT := true
-endif
